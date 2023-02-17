@@ -55,4 +55,26 @@ def someCar():
             )
         )
 
+@app.route('/carro', methods=['DELETE'])
+def deleteSomeCar():
+    if request.method == 'DELETE':
+        car = request.json
+        sql = f"DELETE FROM cars WHERE id={car['id']}"
+        myCursor.execute(sql)
+        myDb.commit()
+        return make_response(jsonify(message=f"successfully deleted car with id: {car['id']}!"))
+
+@app.route('/carro', methods=['PUT'])
+def editSomeCar():
+    if request.method == 'PUT':
+        car = request.json
+        sql = f"UPDATE cars SET brand='{car['brand']}', model='{car['model']}', year='{car['year']}' WHERE id='{car['id']}'"
+        myCursor.execute(sql)
+        myDb.commit()
+        return make_response(
+            jsonify(message="successfully to edit car")
+        )
+    else:
+        return
+
 app.run() # start server
