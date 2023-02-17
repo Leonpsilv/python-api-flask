@@ -28,7 +28,7 @@ def getCar():
             jsonify(cars)
     )
 
-@app.route('/carro', methods=['POST', 'GET'])
+@app.route('/carro', methods=['POST', 'GET', 'DELETE', 'PUT'])
 def someCar():
     if request.method == 'POST':
         car = request.json
@@ -41,7 +41,8 @@ def someCar():
                 data=car
             )
         )
-    else:
+
+    if request.method == 'GET':
         carModel = request.json
         sql = f"SELECT * FROM cars WHERE model='{carModel['model']}'"
         myCursor.execute(sql)
@@ -55,26 +56,33 @@ def someCar():
             )
         )
 
-@app.route('/carro', methods=['DELETE'])
-def deleteSomeCar():
     if request.method == 'DELETE':
         car = request.json
+        myCursor.execute(f"SELECT * FROM cars WHERE id={car['id']}")
+        selectedCar = myCursor.fetchall()
+        if selectedCar == []:
+            return make_response(jsonify(message="No car found!"))
+        
         sql = f"DELETE FROM cars WHERE id={car['id']}"
         myCursor.execute(sql)
         myDb.commit()
-        return make_response(jsonify(message=f"successfully deleted car with id: {car['id']}!"))
+        return make_response(jsonify(message=f"successfully deleted car!"))
 
-@app.route('/carro', methods=['PUT'])
-def editSomeCar():
     if request.method == 'PUT':
         car = request.json
+        myCursor.execute(f"SELECT * FROM cars WHERE id={car['id']}")
+        selectedCar = myCursor.fetchall()
+        if selectedCar == []:
+            return make_response(jsonify(message="No car found!"))
+        
         sql = f"UPDATE cars SET brand='{car['brand']}', model='{car['model']}', year='{car['year']}' WHERE id='{car['id']}'"
         myCursor.execute(sql)
         myDb.commit()
         return make_response(
-            jsonify(message="successfully to edit car")
+            jsonify(
+                message="successfully to edit car",
+                data=car
+            )
         )
-    else:
-        return
 
 app.run() # start server
